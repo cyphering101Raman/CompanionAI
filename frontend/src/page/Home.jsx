@@ -3,6 +3,8 @@ import { Mic, Play, CircleStop } from "lucide-react";
 import HomeModel from "../assets/HomeModel.png";
 import axios from "axios";
 
+
+const BACKEND_PORT_URL = import.meta.env.VITE_BACKEND_PORT_URL;
 export default function Home() {
     const [recording, setRecording] = useState(false);
     const [transcript, setTranscript] = useState("");
@@ -25,14 +27,14 @@ export default function Home() {
         const formData = new FormData();
         formData.append("audio", audioBlob, "input.webm");
 
-        const res = await axios.post("http://localhost:5000/api/v1/stt", formData,
+        const res = await axios.post(`${BACKEND_PORT_URL}/api/v1/stt`, formData,
             {
                 headers: { "Content-Type": "multipart/form-data" }
             });
 
-        
+
         console.log("transcipt:", res.data.text);
-        return res.data.text;   // transcript
+        return res.data.text;
     };
 
     const startStop = async () => {
@@ -65,7 +67,7 @@ export default function Home() {
                         const text = await sendToSTT(blob);
                         setTranscript(text);
 
-                        const chatRes = await axios.post("http://localhost:5000/api/v1/chat", {
+                        const chatRes = await axios.post(`${BACKEND_PORT_URL}/api/v1/chat`, {
                             message: text
                         });
 
@@ -73,7 +75,7 @@ export default function Home() {
                         setReplyAI(chatRes.data.reply);
 
                         const ttsRes = await axios.post(
-                            "http://localhost:5000/api/v1/tts",
+                            `${BACKEND_PORT_URL}/api/v1/tts`,
                             { text: chatRes.data.reply },
                             { responseType: "blob" }
                         );
@@ -114,10 +116,8 @@ export default function Home() {
         <div className="min-h-screen text-[#E9E9F3]">
             <main className="w-[90%] max-w-6xl mx-auto pt-4">
 
-                {/* HERO: LEFT = IMAGE | RIGHT = TEXT + BUTTONS */}
                 <section className="flex flex-col md:flex-row items-center gap-10 py-6">
 
-                    {/* LEFT IMAGE full height */}
                     <div className="w-full md:w-3/4">
                         <img
                             src={HomeModel}
@@ -126,7 +126,6 @@ export default function Home() {
                         />
                     </div>
 
-                    {/* RIGHT TEXT & BUTTONS */}
                     <div className="w-full md:w-1/2">
                         <h1 className="text-4xl font-semibold leading-snug text-center">
                             Companion —<br /> Voice-First Conversations
@@ -138,7 +137,6 @@ export default function Home() {
 
                         <div className="mt-6 flex items-center justify-center gap-5 ">
 
-                            {/* RECORD BUTTON */}
                             <button
                                 onClick={startStop}
                                 className={`
@@ -159,16 +157,9 @@ export default function Home() {
                                 </>}
                             </button>
 
-                            {/* PLAY BUTTON */}
                             <button
                                 onClick={playAudio}
-                                className="
-        flex items-center gap-2 px-5 py-3 rounded-full 
-        bg-[#FFFFFF22] border border-[#FFFFFF1A]
-        text-[#E9E9F3] backdrop-blur-md
-        shadow-[0_0_10px_#2B1F49]
-        hover:bg-[#FFFFFF33] transition
-    "
+                                className=" flex items-center gap-2 px-5 py-3 rounded-full  bg-[#FFFFFF22] border border-[#FFFFFF1A] text-[#E9E9F3] backdrop-blur-md shadow-[0_0_10px_#2B1F49] hover:bg-[#FFFFFF33] transition "
                             >
                                 <Play className="w-4 h-4" />
                                 Play Last
@@ -178,7 +169,7 @@ export default function Home() {
                     </div>
                 </section>
 
-                {/* Transcription Caption*/}
+                {/* Transcription Caption Section*/}
                 <section className=" mt-14  w-full md:w-[60%] mx-auto   bg-[#FFFFFF22]  backdrop-blur-xl  border border-[#FFFFFF1A]    
                     rounded-2xl  p-6  shadow-[0_0_25px_#1A1535] ">
 

@@ -5,7 +5,7 @@ dotenv.config();
 
 const router = Router();
 
-SYSTEM_PROMPT=`
+const SYSTEM_PROMPT=`
 You are Companion — a calm, natural, emotionally-aware, voice-first conversational AI.
 
 GOALS:
