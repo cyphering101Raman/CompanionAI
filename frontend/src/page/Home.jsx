@@ -128,7 +128,7 @@ export default function Home() {
 
                     <div className="w-full md:w-1/2">
                         <h1 className="text-4xl font-semibold leading-snug text-center">
-                            Companion —<br /> Voice-First Conversations
+                            Your Companion —<br /> Voice-First Conversations
                         </h1>
 
                         <p className="mt-3 text-[#B4B7D8] text-center">
