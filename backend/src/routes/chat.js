@@ -1,6 +1,7 @@
 import { Router } from "express";
 import axios from "axios";
 import dotenv from "dotenv";
+import memory from "../mem0.js"
 dotenv.config();
 
 const router = Router();
@@ -50,17 +51,34 @@ You are here to make the voice experience smooth, human, emotionally aware, and 
 router.post("/", async (req, res) => {
     try {
         const { message } = req.body;
-
+        
         if (!message) {
             return res.status(400).json({ error: "Message is required" });
         }
+
+        console.log("\nUser-message:", message);
+
+        const userId = "user_001";
+        await memory.add(
+            [{
+                role: "user",
+                content: message
+            }],
+            { user_id: userId }
+        );
+
+        const retrievedResults = await memory.search(message, { user_id: userId });
+
+        const memoryText = retrievedResults?.map(m => `- ${m.memory}`).filter(Boolean).join("\n");
+        console.log("\nmemory-text: ", memoryText);
 
         const response = await axios.post(
             "https://api.groq.com/openai/v1/chat/completions",
             {
                 model: "llama-3.3-70b-versatile",
                 messages: [
-                    { role: "system", content: SYSTEM_PROMPT},
+                    { role: "system", content: SYSTEM_PROMPT },
+                    { role: "system", content: `MEMORY:\n${memoryText}` },
                     { role: "user", content: message }
                 ],
                 temperature: 0.7
@@ -74,7 +92,12 @@ router.post("/", async (req, res) => {
         );
 
         const reply = response.data.choices[0].message.content;
-        console.log("CHAT REPLY:", reply);
+        console.log("\nCHAT REPLY:", reply);
+
+        await memory.add(
+            [{ role: "assistant", content: reply }],
+            { user_id: userId }
+        );
 
         return res.json({ reply });
 
