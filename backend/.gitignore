@@ -99,3 +99,15 @@ Thumbs.db
 # Others
 .idea/
 *.swp
+
+# SQLite / vector store files
+vector_store.db
+memory.db
+
+# Environment
+.env
+
+# Any temp data
+*.db-shm
+*.db-wal
+
