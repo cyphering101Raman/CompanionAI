@@ -39,7 +39,20 @@ router.post("/", async (req, res) => {
         return res.send(Buffer.from(response.data));
 
     } catch (err) {
-        console.error("TTS Error:", err.response?.data || err.message);
+        let errorMessage = err.message;
+
+        // If API sent back raw JSON bytes, decode them.
+        if (err.response?.data) {
+            try {
+                const decoded = Buffer.from(err.response.data).toString("utf8");
+                console.error("TTS Error (decoded):", decoded);
+            } catch (e) {
+                console.error("TTS Error (raw buffer):", err.response.data);
+            }
+        } else {
+            console.error("TTS Error:", errorMessage);
+        }
+
         res.status(500).json({ error: "TTS failed" });
     }
 });
