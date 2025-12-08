@@ -13,6 +13,8 @@ export default function Home() {
     const [mediaRecorder, setMediaRecorder] = useState(null);
     const [audioChunks, setAudioChunks] = useState([]);
     const [audioBlob, setAudioBlob] = useState(null);
+    const [transcriptLoading, setTranscriptLoading] = useState(false);
+    const [replyLoading, setReplyLoading] = useState(false);
 
     const audioRef = useRef(null);
 
@@ -40,6 +42,10 @@ export default function Home() {
     const startStop = async () => {
         if (!recording) {
             try {
+                setTranscriptLoading(true);
+                setReplyLoading(true);
+                setTranscript("");
+                setReplyAI("");
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
                 let options = { mimeType: "audio/webm" };
@@ -66,6 +72,7 @@ export default function Home() {
                     try {
                         const text = await sendToSTT(blob);
                         setTranscript(text);
+                        setTranscriptLoading(false);
 
                         const chatRes = await axios.post(`${BACKEND_PORT_URL}/api/v1/chat`, {
                             message: text
@@ -73,6 +80,7 @@ export default function Home() {
 
                         console.log("AI REPLY:", chatRes.data.reply);
                         setReplyAI(chatRes.data.reply);
+                        setReplyLoading(false);
 
                         const ttsRes = await axios.post(
                             `${BACKEND_PORT_URL}/api/v1/tts`,
@@ -183,7 +191,9 @@ export default function Home() {
                         </div>
 
                         <div className=" min-h-[70px]  p-4  rounded-lg  bg-[#0F1B3A]/40  border border-[#FFFFFF10] text-sm  text-[#E9E9F3]  whitespace-pre-lin ">
-                            {transcript ? (
+                            {transcriptLoading ? (
+                                <span className="text-[#B4B7D8]">Listening… converting to text…</span>
+                            ) : transcript ? (
                                 transcript
                             ) : (
                                 <span className="text-[#B4B7D8]">No transcript yet</span>
@@ -199,11 +209,14 @@ export default function Home() {
                         </div>
 
                         <div className=" min-h-[90px]  p-4  rounded-lg  bg-[#0F1B3A]/40  border border-[#FFFFFF10]  text-sm  text-[#E9E9F3]  overflow-y-auto  whitespace-pre-lin ">
-                            {replyAI ? (
+                            {replyLoading ? (
+                                <span className="text-[#B4B7D8]">Thinking… preparing response…</span>
+                            ) : replyAI ? (
                                 <p className="leading-relaxed">{replyAI}</p>
                             ) : (
                                 <span className="text-[#B4B7D8]">No reply yet</span>
                             )}
+
                         </div>
                     </div>
 
